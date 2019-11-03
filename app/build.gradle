@@ -28,6 +28,11 @@ dependencies {
     implementation androidx.core
     implementation androidx.constraint_layout
 
+    //firebase
+    implementation firebase.analytics
+    implementation firebase.auth
+    implementation firebase.firestore
+
     testImplementation test.junit
     androidTestImplementation test.junit_android
     androidTestImplementation test.espresso
