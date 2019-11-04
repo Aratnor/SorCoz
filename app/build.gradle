@@ -28,7 +28,13 @@ dependencies {
     implementation androidx.core
     implementation androidx.constraint_layout
 
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+    //firebase
+    implementation firebase.analytics
+    implementation firebase.auth
+    implementation firebase.firestore
+
+    testImplementation test.junit
+    androidTestImplementation test.junit_android
+    androidTestImplementation test.espresso
 }
+apply plugin: 'com.google.gms.google-services'
