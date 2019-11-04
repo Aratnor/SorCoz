@@ -33,6 +33,11 @@ dependencies {
     implementation firebase.auth
     implementation firebase.firestore
 
+    //google
+    implementation google.auth
+
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     testImplementation test.junit
     androidTestImplementation test.junit_android
     androidTestImplementation test.espresso
