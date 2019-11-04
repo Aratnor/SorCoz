@@ -15,6 +15,7 @@ def test_versions = [:]
 test_versions.junit = "4.12"
 test_versions.junit_android = "1.1.0"
 test_versions.espresso = "3.1.1"
+test_versions.runner = "1.2.0"
 
 def deps = [:]
 
@@ -46,6 +47,7 @@ def test = [:]
 test.junit = "junit:junit:$test_versions.junit"
 test.junit_android = "androidx.test.ext:junit:$test_versions.junit_android"
 test.espresso = "androidx.test.espresso:espresso-core:$test_versions.espresso"
+test.runner = "androidx.test:runner:$test_versions.runner"
 ext.test = test
 
 deps.kotlin = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin"
