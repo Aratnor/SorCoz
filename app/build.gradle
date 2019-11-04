@@ -22,6 +22,8 @@ android {
 }
 
 dependencies {
+    api project(':domain')
+
     implementation deps.kotlin
 
     implementation androidx.app_compat
