@@ -3,7 +3,9 @@ apply plugin: 'kotlin'
 dependencies {
 
  implementation deps.kotlin
+ implementation coroutine.core
 
+ implementation deps.javax_inject
 }
 
 sourceCompatibility = "7"

@@ -44,6 +44,8 @@ dependencies {
     implementation coroutine.core
     implementation coroutine.play_services
 
+    implementation deps.javax_inject
+
 
     //Test
     testImplementation test.junit

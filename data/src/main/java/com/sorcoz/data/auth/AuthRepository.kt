@@ -5,6 +5,7 @@ import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import com.sorcoz.domain.IDispatcherProvider
 import com.sorcoz.domain.auth.AuthManager
 import com.sorcoz.domain.auth.AuthType
 import com.sorcoz.domain.auth.LoginWithTokenProvider
@@ -13,16 +14,17 @@ import com.sorcoz.domain.model.User
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class AuthRepository constructor(
+class AuthRepository @Inject constructor(
     private val auth: FirebaseAuth,
     private val db: FirebaseFirestore,
-    private val dispatchers: Dispatchers
+    private val dispatchers: IDispatcherProvider
 ) : AuthManager {
 
     override suspend fun login(params: LoginWithTokenProvider.Params): Resource<User> {
-        return withContext(dispatchers.IO) {
-            return@withContext try {
+        return withContext(dispatchers.io) {
+            try {
                 val credential: AuthCredential = when (params.authType) {
                     AuthType.GOOGLE -> GoogleAuthProvider.getCredential(params.token, null)
                 }
@@ -36,18 +38,23 @@ class AuthRepository constructor(
     private suspend fun signInWithCredential(
         credential: AuthCredential
     ): Resource<User> {
-        val authResult = auth.signInWithCredential(credential).await()
-        val user = authResult.user ?: return Resource.error(Throwable())
-        val newUser = User(
-            user.uid,
-            user.displayName.orEmpty(),
-            user.email.orEmpty(),
-            user.photoUrl?.toString().orEmpty()
-        )
-        return if (authResult.additionalUserInfo?.isNewUser == false) {
-            Resource.success(newUser)
-        } else {
-            saveUser(newUser)
+        try {
+            val authResult = auth.signInWithCredential(credential).await()
+            val user = authResult.user ?: return Resource.error(Throwable())
+            val newUser = User(
+                user.uid,
+                user.displayName.orEmpty(),
+                user.email.orEmpty(),
+                user.photoUrl?.toString().orEmpty()
+            )
+
+            return if (authResult.additionalUserInfo?.isNewUser == false) {
+                Resource.success(newUser)
+            } else {
+                saveUser(newUser)
+            }
+        } catch (e: Exception) {
+            return Resource.error(e)
         }
     }
 
@@ -64,22 +71,4 @@ class AuthRepository constructor(
     }
 
     override suspend fun logout(LogoutCallBack: AuthManager.LogoutCallBack) {}
-
-    companion object {
-        private var INSTANCE: AuthRepository? = null
-
-        private val lock = Any()
-
-        fun getInstance(): AuthRepository {
-            synchronized(lock) {
-                if (INSTANCE == null) {
-                    val auth = FirebaseAuth.getInstance()
-                    val db = FirebaseFirestore.getInstance()
-                    INSTANCE =
-                        AuthRepository(auth, db, Dispatchers)
-                }
-                return INSTANCE!!
-            }
-        }
-    }
 }
