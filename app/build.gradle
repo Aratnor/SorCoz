@@ -28,6 +28,11 @@ dependencies {
 
     implementation deps.kotlin
 
+    implementation dagger.support
+    implementation dagger.android
+    kapt dagger.compiler
+    kapt dagger.processor
+
     //coroutines
     implementation coroutine.core
     implementation coroutine.android

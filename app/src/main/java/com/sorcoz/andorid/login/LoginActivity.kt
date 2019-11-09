@@ -1,39 +1,34 @@
 package com.sorcoz.andorid.login
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.firebase.auth.FirebaseUser
 import com.sorcoz.andorid.R
-import com.sorcoz.data.auth.AuthRepository
-import com.sorcoz.domain.auth.AuthManager
 import com.sorcoz.domain.auth.AuthType
-import com.sorcoz.domain.model.User
+import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_login.*
-import kotlinx.coroutines.*
-import java.lang.Exception
-import kotlin.coroutines.CoroutineContext
+import javax.inject.Inject
 
-class LoginActivity : AppCompatActivity(), CoroutineScope {
-    private var job: Job = Job()
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main+job
+class LoginActivity : DaggerAppCompatActivity() {
+
+    @Inject
+    internal lateinit var viewModelFactory: ViewModelProvider.Factory
+    private lateinit var googleSignInClient: GoogleSignInClient
     private val viewModel by lazy {
-        ViewModelProviders.of(this,
-            LoginViewModelFactory.getInstance(applicationContext))
+        ViewModelProviders
+            .of(
+                this,
+                viewModelFactory
+            )
             .get(LoginViewModel::class.java)
     }
-
-    private lateinit var googleSignInClient: GoogleSignInClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,28 +45,21 @@ class LoginActivity : AppCompatActivity(), CoroutineScope {
             .build()
         googleSignInClient = GoogleSignIn.getClient(this, gso)
         google_login_button.setOnClickListener {
-            signIn()
+            startSignInIntent()
         }
     }
 
-    private fun login(token: String,authType: AuthType) {
-        viewModel.login(token,authType)
+    private fun login(token: String, authType: AuthType) {
+        viewModel.login(token, authType)
     }
 
     private fun viewModelLoginObserver() {
-        viewModel.loginSuccess.observe(this, Observer{ navigateToPostActivity()})
-        viewModel.loginFailure.observe(this,Observer{ handleFailure(it)})
+        viewModel.loginState.observe(this, Observer {
+            Log.d(TAG, "login state: $it")
+        })
     }
 
-    private fun navigateToPostActivity() {
-        Log.w(TAG,"Navigate login to next activity")
-    }
-
-    private fun handleFailure(exception: Exception) {
-        Log.w(TAG,"Error occur"+exception.message)
-    }
-
-    private fun signIn() {
+    private fun startSignInIntent() {
         val signInIntent = googleSignInClient.signInIntent
         startActivityForResult(signInIntent, RC_SIGN_IN)
     }
@@ -85,9 +73,7 @@ class LoginActivity : AppCompatActivity(), CoroutineScope {
             try {
                 // Google Sign In was successful, authenticate with Firebase
                 val account = task.getResult(ApiException::class.java)!!
-                launch {
-                    login(account.idToken!!,AuthType.GOOGLE)
-                }
+                login(account.idToken!!, AuthType.GOOGLE)
             } catch (e: ApiException) {
                 // Google Sign In failed, update UI appropriately
                 Log.w(TAG, "Google sign in failed", e)
@@ -96,10 +82,6 @@ class LoginActivity : AppCompatActivity(), CoroutineScope {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        job.cancel()
-    }
     companion object {
         private const val TAG = "GoogleActivity"
         private const val RC_SIGN_IN = 9001

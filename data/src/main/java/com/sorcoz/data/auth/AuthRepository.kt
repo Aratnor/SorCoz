@@ -1,92 +1,74 @@
 package com.sorcoz.data.auth
 
-import android.util.Log
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
+import com.sorcoz.domain.IDispatcherProvider
 import com.sorcoz.domain.auth.AuthManager
 import com.sorcoz.domain.auth.AuthType
+import com.sorcoz.domain.auth.LoginWithTokenProvider
+import com.sorcoz.domain.model.Resource
 import com.sorcoz.domain.model.User
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class AuthRepository constructor(
+class AuthRepository @Inject constructor(
     private val auth: FirebaseAuth,
-    private val db: FirebaseFirestore
+    private val db: FirebaseFirestore,
+    private val dispatchers: IDispatcherProvider
 ) : AuthManager {
-    private val TAG_GOOGLE = "Google check"
-    private val TAG_FIREBASE = "Firebase check"
-    override suspend fun login(
-        token:String,
-        authType: AuthType,
-        LoginCallBack: AuthManager.LoginCallBack){
-        try {
-            var credential: AuthCredential? = null
-            when(authType){
-                AuthType.GOOGLE -> credential = GoogleAuthProvider.getCredential(token, null)
 
-            }
-            signInWithCredential(credential,LoginCallBack)
-        } catch (e: ApiException) {
-            Log.w(TAG_GOOGLE, "Google sign in failed", e)
-            LoginCallBack.onLoginFailed(e)
-        }
-    }
-
-    private fun signInWithCredential(
-        credential: AuthCredential,
-        LoginCallBack: AuthManager.LoginCallBack
-        ){
-        auth.signInWithCredential(credential).addOnCompleteListener { task ->
-            if(task.isSuccessful) {
-                if(task.result?.additionalUserInfo?.isNewUser!!) {
-                    val currentUser = auth.currentUser!!
-                    val newUser =User(
-                        currentUser.uid,
-                        currentUser.displayName.orEmpty(),
-                        currentUser.email.orEmpty(),
-                        currentUser.email.toString())
-                    saveUser(newUser)
-                    LoginCallBack.onLoginSuccess(newUser)
+    override suspend fun login(params: LoginWithTokenProvider.Params): Resource<User> {
+        return withContext(dispatchers.io) {
+            try {
+                val credential: AuthCredential = when (params.authType) {
+                    AuthType.GOOGLE -> GoogleAuthProvider.getCredential(params.token, null)
                 }
-                Log.d(TAG_GOOGLE, "signInWithCredential:success")
-            } else {
-                Log.w(TAG_GOOGLE, "signInWithCredential:failure", task.exception)
-                LoginCallBack.onLoginFailed(task.exception!!)
+                signInWithCredential(credential)
+            } catch (e: ApiException) {
+                Resource.error<User>(e)
             }
         }
     }
 
-    private fun saveUser(user: User){
-        db.collection("users")
+    private suspend fun signInWithCredential(
+        credential: AuthCredential
+    ): Resource<User> {
+        try {
+            val authResult = auth.signInWithCredential(credential).await()
+            val user = authResult.user ?: return Resource.error(Throwable())
+            val newUser = User(
+                user.uid,
+                user.displayName.orEmpty(),
+                user.email.orEmpty(),
+                user.photoUrl?.toString().orEmpty()
+            )
+
+            return if (authResult.additionalUserInfo?.isNewUser == false) {
+                Resource.success(newUser)
+            } else {
+                saveUser(newUser)
+            }
+        } catch (e: Exception) {
+            return Resource.error(e)
+        }
+    }
+
+    private suspend fun saveUser(user: User): Resource<User> {
+        val task = db.collection("users")
             .document(user.uid)
             .set(user)
-            .addOnSuccessListener { Log.d(TAG_FIREBASE, "DocumentSnapshot successfully written!") }
-            .addOnFailureListener { e -> Log.w(TAG_FIREBASE, "Error writing document", e) }
-    }
-
-    override suspend fun logout(LogoutCallBack: AuthManager.LogoutCallBack) {
-
-    }
-
-    companion object {
-        private var INSTANCE: AuthRepository? = null
-
-        private val lock = Any()
-
-        fun getInstance(): AuthRepository {
-            synchronized(lock) {
-                if(INSTANCE == null) {
-                    val auth = FirebaseAuth.getInstance()
-                    val db = FirebaseFirestore.getInstance()
-                    INSTANCE =
-                        AuthRepository(auth, db)
-                }
-                return INSTANCE!!
-            }
+        return try {
+            task.await()
+            Resource.success(user)
+        } catch (e: Exception) {
+            Resource.error(e)
         }
-
-
-
     }
+
+    override suspend fun logout(LogoutCallBack: AuthManager.LogoutCallBack) {}
 }
