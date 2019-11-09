@@ -59,16 +59,9 @@ class LoginActivity : AppCompatActivity(), CoroutineScope {
     }
 
     private fun viewModelLoginObserver() {
-        viewModel.loginSuccess.observe(this, Observer{ navigateToPostActivity()})
-        viewModel.loginFailure.observe(this,Observer{ handleFailure(it)})
-    }
-
-    private fun navigateToPostActivity() {
-        Log.w(TAG,"Navigate login to next activity")
-    }
-
-    private fun handleFailure(exception: Exception) {
-        Log.w(TAG,"Error occur"+exception.message)
+        viewModel.loginState.observe(this, Observer {
+            Log.d(TAG, "login state: $it")
+        })
     }
 
     private fun signIn() {

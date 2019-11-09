@@ -1,43 +1,27 @@
 package com.sorcoz.andorid.login
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sorcoz.data.auth.AuthRepository
-import com.sorcoz.domain.auth.AuthManager
 import com.sorcoz.domain.auth.AuthType
+import com.sorcoz.domain.auth.LoginWithTokenProvider
+import com.sorcoz.domain.model.Resource
 import com.sorcoz.domain.model.User
 import kotlinx.coroutines.launch
-import java.lang.Exception
 
 class LoginViewModel constructor(
     private val authRepository: AuthRepository
-): ViewModel() {
-    val loginSuccess = MutableLiveData<Boolean>()
+) : ViewModel() {
 
-    val loginFailure = MutableLiveData<Exception>()
+    val loginState = MutableLiveData<Resource<User>>()
 
-    var currentUser: User? = null
+    fun login(token: String, type: AuthType) {
 
-    init {
-        loginSuccess.value =false
-    }
-
-    fun login(token:String,type: AuthType){
         viewModelScope.launch {
-            authRepository.login(token,type,object : AuthManager.LoginCallBack {
-                override fun onLoginSuccess(user: User) {
-                    loginSuccess.value = true
-                    currentUser = user
-                }
-
-                override fun onLoginFailed(exception: Exception) {
-                   loginFailure.value = exception
-                }
-            })
+            authRepository.login(LoginWithTokenProvider.Params(token, type)).also {
+                loginState.value = it
+            }
         }
     }
-
-
 }

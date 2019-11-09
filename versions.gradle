@@ -58,6 +58,7 @@ ext.lifeCycle = lifeCycle
 def coroutine = [:]
 coroutine.core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$versions.coroutine"
 coroutine.android = "org.jetbrains.kotlinx:kotlinx-coroutines-android:$versions.coroutine"
+coroutine.play_services= "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$versions.coroutine"
 ext.coroutine = coroutine
 
 def test = [:]
