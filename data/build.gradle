@@ -26,10 +26,22 @@ android {
 }
 
 dependencies {
+    api project(':domain')
+
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation deps.kotlin
     implementation androidx.app_compat
     implementation androidx.core
+    //firebase
+    implementation firebase.analytics
+    implementation firebase.auth
+    implementation firebase.firestore
+
+    //google
+    implementation google.auth
+
+
+    //Test
     testImplementation test.junit
     androidTestImplementation test.runner
     androidTestImplementation test.espresso
