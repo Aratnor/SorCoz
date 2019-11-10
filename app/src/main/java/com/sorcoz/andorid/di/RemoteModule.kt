@@ -2,7 +2,9 @@ package com.sorcoz.andorid.di
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.sorcoz.data.addpost.AddPostRepositoryImp
 import com.sorcoz.data.auth.AuthRepository
+import com.sorcoz.domain.addpost.AddPostRepository
 import com.sorcoz.domain.auth.AuthManager
 import dagger.Binds
 import dagger.Module
@@ -31,4 +33,7 @@ abstract class RemoteModule {
 
     @Binds
     abstract fun bindAuthManager(authRepository: AuthRepository): AuthManager
+
+    @Binds
+    abstract fun bindAddPostRepository(addPostRepositoryImp: AddPostRepositoryImp): AddPostRepository
 }

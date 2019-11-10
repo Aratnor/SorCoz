@@ -10,8 +10,12 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.sorcoz.andorid.MainActivity
 import com.sorcoz.andorid.R
+import com.sorcoz.andorid.addpost.AddPostActivity
+import com.sorcoz.domain.addpost.AddPostRepository
 import com.sorcoz.domain.auth.AuthType
+import com.sorcoz.domain.model.User
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_login.*
 import javax.inject.Inject
@@ -37,6 +41,11 @@ class LoginActivity : DaggerAppCompatActivity() {
         viewModelLoginObserver()
     }
 
+    override fun onStart() {
+        super.onStart()
+        viewModel.getCurrentUser()
+    }
+
     private fun initializeGoogleButton() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
@@ -55,8 +64,16 @@ class LoginActivity : DaggerAppCompatActivity() {
 
     private fun viewModelLoginObserver() {
         viewModel.loginState.observe(this, Observer {
-            Log.d(TAG, "login state: $it")
+            if(it.data != null) {
+                navigateActivity(it.data!!)
+            }
         })
+    }
+
+    private fun navigateActivity(user: User) {
+        val intent = Intent(this,MainActivity::class.java)
+        intent.putExtra("user_id",user.uid)
+        startActivity(intent)
     }
 
     private fun startSignInIntent() {

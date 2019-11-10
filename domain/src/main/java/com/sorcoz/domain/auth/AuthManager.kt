@@ -13,4 +13,6 @@ interface AuthManager {
     suspend fun login(params: LoginWithTokenProvider.Params): Resource<User>
 
     suspend fun logout(LogoutCallBack: LogoutCallBack)
+
+    suspend fun getCurrentUser():Resource<User>
 }

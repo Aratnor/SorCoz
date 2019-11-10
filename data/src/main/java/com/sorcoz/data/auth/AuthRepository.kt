@@ -14,6 +14,7 @@ import com.sorcoz.domain.model.User
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.lang.NullPointerException
 import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
@@ -71,4 +72,13 @@ class AuthRepository @Inject constructor(
     }
 
     override suspend fun logout(LogoutCallBack: AuthManager.LogoutCallBack) {}
+
+    override suspend fun getCurrentUser(): Resource<User> {
+        val currentUser = auth.currentUser ?: return Resource.error(NullPointerException("FirebaseUserNull"))
+        return Resource.success(
+            User(currentUser.uid,
+                currentUser.displayName.orEmpty(),
+                currentUser.email.orEmpty(),
+                currentUser.photoUrl.toString()))
+    }
 }

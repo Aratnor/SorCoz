@@ -50,8 +50,8 @@ dependencies {
     implementation google.auth
 
     //lifecycle
-    implementation  lifeCycle.extensions
-    implementation  lifeCycle.ktx
+    implementation lifeCycle.extensions
+    implementation lifeCycle.ktx
 
     implementation androidx.app_compat
     implementation androidx.constraint_layout
