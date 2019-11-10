@@ -14,5 +14,4 @@ interface AuthManager {
 
     suspend fun logout(LogoutCallBack: LogoutCallBack)
 
-    suspend fun getCurrentUser():Resource<User>
 }

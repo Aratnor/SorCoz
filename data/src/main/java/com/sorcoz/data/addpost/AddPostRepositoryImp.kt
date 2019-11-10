@@ -13,25 +13,27 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class AddPostRepositoryImp @Inject constructor(
-    val db: FirebaseFirestore,
-    val dispatcher: IDispatcherProvider
+    private val db: FirebaseFirestore,
+    private val dispatcher: IDispatcherProvider
 ): AddPostRepository {
     override suspend fun addPost(params: AddPostProvider.Params): Resource<Post> {
                 val task = db
                     .collection("posts")
-                    .document()
+                    .document("category1")
                     .collection(params.category1)
-                    .document()
+                    .document("category2")
                     .collection(params.category2)
-                    .document()
+                    .document("category3")
                     .collection(params.category3)
                     .document(params.post.postId)
                     .set(params.post)
-                try {
-                    task.await()
-                    return Resource.success(params.post)
-                }catch (e: Exception) {
-                    return Resource.error(e)
-                }
+        return try {
+            withContext(dispatcher.io){
+                task.await()
+            }
+            Resource.success(params.post)
+        }catch (e: Exception) {
+            Resource.error(e)
+        }
     }
 }

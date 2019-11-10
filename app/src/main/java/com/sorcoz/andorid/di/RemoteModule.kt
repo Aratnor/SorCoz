@@ -4,8 +4,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.sorcoz.data.addpost.AddPostRepositoryImp
 import com.sorcoz.data.auth.AuthRepository
+import com.sorcoz.data.user.UserRepository
 import com.sorcoz.domain.addpost.AddPostRepository
 import com.sorcoz.domain.auth.AuthManager
+import com.sorcoz.domain.user.IUserRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -36,4 +38,7 @@ abstract class RemoteModule {
 
     @Binds
     abstract fun bindAddPostRepository(addPostRepositoryImp: AddPostRepositoryImp): AddPostRepository
+
+    @Binds
+    abstract fun bindIUserRepository(userRepository: UserRepository): IUserRepository
 }

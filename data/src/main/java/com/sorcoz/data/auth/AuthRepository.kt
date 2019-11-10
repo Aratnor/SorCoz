@@ -73,12 +73,4 @@ class AuthRepository @Inject constructor(
 
     override suspend fun logout(LogoutCallBack: AuthManager.LogoutCallBack) {}
 
-    override suspend fun getCurrentUser(): Resource<User> {
-        val currentUser = auth.currentUser ?: return Resource.error(NullPointerException("FirebaseUserNull"))
-        return Resource.success(
-            User(currentUser.uid,
-                currentUser.displayName.orEmpty(),
-                currentUser.email.orEmpty(),
-                currentUser.photoUrl.toString()))
-    }
 }
