@@ -1,0 +1,37 @@
+<resources>
+    <string-array name="tyt_categories1">
+        <item>Türkçe</item>
+        <item>Matematik</item>
+        <item>Geometri</item>
+        <item>Fizik</item>
+        <item>Kimya</item>
+        <item>Biyoloji</item>
+        <item>Tarih</item>
+        <item>Coğrafya</item>
+        <item>Felsefe</item>
+        <item>Din Kültürü</item>
+    </string-array>
+
+    <string-array name="tyt_türkçe">
+        <item>Sözcük Anlamı</item>
+        <item>Söz Yorumu</item>
+        <item>Deyim ve Atasözü</item>
+        <item>Cümle Anlamı</item>
+        <item>Cümle Yorumu</item>
+        <item>Paragraf</item>
+        <item>Ses Bilgisi</item>
+        <item>Yazım Kuralları</item>
+        <item>Noktalama İşaretleri</item>
+        <item>Sözcüğün Yapısı</item>
+        <item>Sözcük Türleri</item>
+        <item>Fiiller</item>
+        <item>Sözcük Grupları</item>
+        <item> Cümlenin Ögeleri</item>
+        <item>Cümle Türleri</item>
+        <item>Anlatım Bozukluğu</item>
+    </string-array>
+
+    <string-array name="tyt_matematik">
+        <item>Temel Kavramlar</item>
+    </string-array>
+</resources>

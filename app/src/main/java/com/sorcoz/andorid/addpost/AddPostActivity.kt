@@ -34,7 +34,6 @@ class AddPostActivity : DaggerAppCompatActivity() {
             viewModel.addPost(uid,editText.text.toString(),editText2.text.toString(),"cat1","cat2","cat3")
         })
         //viewModelAddPostObserver()
-
     }
 
     private fun viewModelAddPostObserver() {
