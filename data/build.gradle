@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
@@ -14,6 +15,9 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
+    }
+    packagingOptions {
+        exclude 'META-INF/atomicfu.kotlin_module'
     }
 
     buildTypes {
@@ -37,8 +41,21 @@ dependencies {
     implementation firebase.auth
     implementation firebase.firestore
 
+    implementation 'org.jsoup:jsoup:1.12.1'
+
     //google
     implementation google.auth
+
+    //room
+    implementation room.ktx
+    implementation room.runtime
+    implementation room.testing
+    kapt room.compiler
+
+    implementation dagger.support
+    implementation dagger.android
+    kapt dagger.compiler
+    kapt dagger.processor
 
     //coroutines
     implementation coroutine.core
@@ -46,9 +63,12 @@ dependencies {
 
     implementation deps.javax_inject
 
-
     //Test
+    testImplementation coroutine.test
     testImplementation test.junit
+    testImplementation test.junit_android
     androidTestImplementation test.runner
     androidTestImplementation test.espresso
+    kaptAndroidTest "com.google.dagger:dagger-compiler:2.25.2"
+    kaptTest "com.google.dagger:dagger-compiler:2.25.2"
 }

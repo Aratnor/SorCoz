@@ -1,6 +1,7 @@
 package com.sorcoz.andorid.di
 
 import com.sorcoz.andorid.SorCozApplication
+import com.sorcoz.data.room.di.RoomModule
 import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjector
@@ -14,7 +15,8 @@ import javax.inject.Singleton
         RemoteModule::class,
         UIModule::class,
         ViewModelModule::class,
-        ActivityBuildersModule::class
+        ActivityBuildersModule::class,
+        RoomModule::class
     ]
 )
 interface AppComponent : AndroidInjector<SorCozApplication> {
